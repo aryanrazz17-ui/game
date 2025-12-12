@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "target": "esnext",
+        "module": "commonjs",
+        "baseUrl": "src",
+        "skipLibCheck": true,
+        "types": [],
+        "lib": []
+    },
+    "typeAcquisition": {
+        "enable": false
+    },
+    "include": ["src/**/*"],
+    "exclude": ["node_modules", "**/node_modules/**"]
+}
