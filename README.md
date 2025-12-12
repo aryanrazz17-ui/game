@@ -8,6 +8,25 @@ A modern crypto-powered gaming platform supporting multi-chain tokens and exciti
 
 ---
 
+## Contact 
+
+| Platform | Link |
+|----------|------|
+| 📱 Telegram | [t.me/novustch](https://t.me/novustch) |
+| 📲 WhatsApp | [wa.me/14105015750](https://wa.me/14105015750) |
+| 💬 Discord | [discordapp.com/users/985432160498491473](https://discordapp.com/users/985432160498491473)
+
+<div align="left">
+    <a href="https://t.me/novustch" target="_blank"><img alt="Telegram"
+        src="https://img.shields.io/badge/Telegram-26A5E4?style=for-the-badge&logo=telegram&logoColor=white"/></a>
+    <a href="https://wa.me/14105015750" target="_blank"><img alt="WhatsApp"
+        src="https://img.shields.io/badge/WhatsApp-25D366?style=for-the-badge&logo=whatsapp&logoColor=white"/></a>
+    <a href="https://discordapp.com/users/985432160498491473" target="_blank"><img alt="Discord"
+        src="https://img.shields.io/badge/Discord-7289DA?style=for-the-badge&logo=discord&logoColor=white"/></a>
+</div>
+
+Feel free to reach out for implementation assistance or integration support.
+
 ## Games Included
 
 | Game | Description | Preview |
@@ -512,17 +531,6 @@ Ensure you have a Web3 wallet extension installed (MetaMask, etc.) and are on a 
 This project is licensed under the **ISC License**.
 
 You are free to use, modify, and distribute this software. However, please use it responsibly and in compliance with applicable laws and regulations in your jurisdiction.
-
----
-
-## Contact & Support
-
-For questions, support, or collaboration opportunities:
-
-* **Telegram**: [https://t.me/novustch](https://t.me/novustch)
-* **Twitter/X**: [https://x.com/novustch](https://x.com/novustch)
-
-Feel free to reach out for technical support, feature requests, or general inquiries about the platform.
 
 ---
 
