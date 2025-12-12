@@ -18,11 +18,12 @@ A modern crypto-powered gaming platform supporting multi-chain tokens and exciti
 | **Turtle Race** | Race to win in a thrilling format with multiple participants and dynamic odds | ![Turtle](https://github.com/user-attachments/assets/5cd8b3c1-0f53-48c6-b660-0aba7836dc2f) |
 | **Dice** | Traditional luck-based dice game with customizable odds and instant results | ![Dice](https://github.com/user-attachments/assets/b331fe0d-871a-4f4e-aea4-bf4a4cf6e74c) |
 | **Slot** | Spin the reels, win rewards! Classic slot machine experience with crypto rewards | ![Slot](https://github.com/user-attachments/assets/b46a5c71-22cd-4ce7-b549-5fb451c31b87) |
-| **Lottery** | Draw-based lottery system with multiple prize tiers and crypto payouts | ![Lottery](https://via.placeholder.com/400x300?text=Lottery+Game) |
-| **Roulette** | Classic European roulette with crypto betting and real-time wheel spinning | ![Roulette](https://via.placeholder.com/400x300?text=Roulette+Game) |
-| **Blackjack** | Traditional card game with crypto stakes and multiple betting options | ![Blackjack](https://via.placeholder.com/400x300?text=Blackjack+Game) |
-| **Poker** | Multi-variant poker games with crypto buy-ins and tournament support | ![Poker](https://via.placeholder.com/400x300?text=Poker+Game) |
-| **Baccarat** | Elegant card game with crypto betting and multiple side bet options | ![Baccarat](https://via.placeholder.com/400x300?text=Baccarat+Game) |
+| **Sports Betting** | Live sports betting with real-time odds, multiple sports, and bet slip functionality | ![Sports Betting](https://www.jollybet.net/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fftbll.webp&w=640&q=75) |
+| **Lottery** | Draw-based lottery system with multiple prize tiers and crypto payouts | ![Lottery](https://www.jollybet.net/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fbngmltchmpnbnsvp.webp&w=640&q=75) |
+| **Roulette** | Classic European roulette with crypto betting and real-time wheel spinning | ![Roulette](https://www.jollybet.net/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Frgntnlg.webp&w=640&q=75) |
+| **Blackjack** | Traditional card game with crypto stakes and multiple betting options | ![Blackjack](https://www.jollybet.net/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Frpnblckjck.webp&w=640&q=75) |
+| **Poker** | Multi-variant poker games with crypto buy-ins and tournament support | ![Poker](https://www.jollybet.net/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fcplbrtdrs.webp&w=640&q=75) |
+| **Baccarat** | Elegant card game with crypto betting and multiple side bet options | ![Baccarat](https://www.jollybet.net/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fbccrt.webp&w=640&q=75) |
 
 ---
 
