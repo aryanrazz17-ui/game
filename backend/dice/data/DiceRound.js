@@ -17,7 +17,7 @@ const ChanceData = [
 
 exports.getDiceResult = async (data, socket) => {
     try {
-        let { userId, betAmount, coinType, isOver, difficulty } = data;
+        let { userId, betAmount, coinType, isOver, difficulty, isDemo } = data;
         const seedData = await diceController.getSeedData(userId);
         const roundNumber = uuidv4();
 
@@ -25,7 +25,7 @@ exports.getDiceResult = async (data, socket) => {
         const fairData = diceFairResult(seedData.serverSeedData.seed, seedData.clientSeedData.seed, roundNumber, difficulty);
         const roundResult = calcRoundResult(isOver, difficulty, fairData);
 
-        const response = await diceController.saveDiceRound({ roundNumber, userId, betAmount, coinType, difficulty, isOver, payout, fairData, roundResult, serverSeed: seedData.serverSeedData.seed, clientSeed: seedData.clientSeedData.seed });
+        const response = await diceController.saveDiceRound({ isDemo, roundNumber, userId, betAmount, coinType, difficulty, isOver, payout, fairData, roundResult, serverSeed: seedData.serverSeedData.seed, clientSeed: seedData.clientSeedData.seed });
         if (response.status) {
             socketManager.sendBetResult(response, socket);
             socketManager.sendBetHistory({

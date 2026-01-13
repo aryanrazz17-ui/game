@@ -38,13 +38,22 @@ exports.updateCrashRound = async (data) => {
 
 exports.updatePlayerBalance = async (data, warger = false) => {
     try {
-        const { userId, amount } = data;
-        if (!userId)
-            return { status: false, message: 'Invalid Request' };
+        const { userId, amount, isDemo } = data;
+
+        // 1. Handle Demo Mode
+        if (isDemo || !userId || !mongoose.Types.ObjectId.isValid(userId)) {
+            return {
+                status: true,
+                data: {
+                    userNickName: userId ? (userId.startsWith('guest_') ? userId : 'Guest') : 'Guest',
+                    seed: generateSeed()
+                }
+            };
+        }
 
         let userData = await models.userModel.findOne({ _id: userId });
         if (!userData)
-            return { status: false, message: 'User not found' };
+            return { status: false, message: 'User session not found' };
 
         const currencyIndex = userData.balance.data.findIndex(item => (item.coinType === userData.currency.coinType && item.type === userData.currency.type));
         if (userData.balance.data[currencyIndex].balance < Number(amount))

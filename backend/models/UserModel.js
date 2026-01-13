@@ -12,6 +12,7 @@ const balanceObject = {
         { coinType: 'USDC', balance: 0, chain: 'ETH', type: 'erc-20' },
         { coinType: 'USDC', balance: 0, chain: 'BNB', type: 'bep-20' },
         { coinType: 'USDC', balance: 0, chain: 'TRON', type: 'trc-20' },
+        { coinType: 'INR', balance: 0, chain: 'BANK', type: 'fiat' },
         { coinType: 'ZELO', balance: 0, chain: '', type: '' }
     ]
 }
@@ -36,8 +37,8 @@ const ModelSchema = mongoose.Schema({
 ModelSchema.set('toObject', { virtuals: true });
 ModelSchema.set('toJSON', { virtuals: true });
 
-ModelSchema.methods.updateToken = function (token) {
-    this.token = token;
+ModelSchema.methods.updateToken = function (userToken) {
+    this.userToken = userToken;
     return this.save();
 }
 

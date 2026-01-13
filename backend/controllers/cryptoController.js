@@ -30,7 +30,13 @@ const AssetList = [
 exports.getDepositAddressFromAccount = async (req, res) => {
     try {
         let { coinType, type, userId } = req.body;
-        if (type !== 'native') {
+        console.log("getDepositAddressRequest:", { coinType, type, userId });
+
+        if (!coinType || !userId) {
+            return res.json({ status: false, data: null, message: 'Invalid Request' });
+        }
+
+        if (type !== 'native' && type !== '') {
             coinType = await tatumController.getNativeData({ type });
         }
 
@@ -53,17 +59,17 @@ exports.getDepositAddressFromAccount = async (req, res) => {
                     return res.json({ status: true, data: data });
                 }
                 else {
-                    return res.json({ status: false, data: response, message: 'API Error' });
+                    return res.json({ status: false, data: response, message: 'API Error: Initialization failed or Tatum offline' });
                 }
             }
         }
         else {
-            return res.json({ status: false, data: null, message: 'Invalid Request' });
+            return res.json({ status: false, data: null, message: 'Currency not supported' });
         }
     }
     catch (err) {
         console.error({ title: 'cryptoController - getDepositAddressFromAccount', message: err.message });
-        return res.json({ status: false, data: null, message: 'Server Error' });
+        return res.json({ status: false, data: null, message: 'Server Error: ' + err.message });
     }
 }
 
@@ -76,7 +82,7 @@ exports.getBalanceFromAccount = async (req, res) => {
                 return res.json({ status: true, data: response });
             }
             else {
-                return res.json({ status: false, data: response, message: 'API Error' });
+                return res.json({ status: false, data: response, message: 'API Error: Could not fetch balance' });
             }
         }
         else {
@@ -370,29 +376,75 @@ exports.getCurrencies = async (req, res) => {
 }
 
 exports.getExchangeRate = async (req, res) => {
-    let { from, to } = req.body;
-    if (!from || !to) return res.json({ status: false, message: 'Invalid Request' });
+    try {
+        let { from, to } = req.body;
+        if (!from || !to) return res.json({ status: false, message: 'Invalid Request' });
 
-    if (from === 'ZELO') from = 'USDT';
-    if (to === 'ZELO') to = 'USDT';
+        if (from === 'ZELO') from = 'USDT';
+        if (to === 'ZELO') to = 'USDT';
 
-    const response = await getExchangeRateFromBinanceApi(from, to);
-    return res.json(response);
+        const response = await getExchangeRateFromBinanceApi(from, to);
+        return res.json(response);
+    } catch (err) {
+        console.error({ title: 'cryptoController => getExchangeRate', message: err.message });
+        return res.json({ status: false, message: 'Server Error' });
+    }
 }
 
 const getExchangeRateFromBinanceApi = async (from, to) => {
-    if (from === to) return { status: true, data: 0.98 };
+    try {
+        if (from === to) return { status: true, data: 1.0 };
 
-    const fromUrl = `https://api.binance.com/api/v3/ticker/price?symbol=${from}TRY`;
-    const toUrl = `https://api.binance.com/api/v3/ticker/price?symbol=${to}TRY`;
+        let rate = 1.0;
 
-    const fromResponse = await Axios.get(fromUrl);
-    const toResponse = await Axios.get(toUrl);
+        // Use USDT as the common denominator
+        let fromPrice = 1.0;
+        let toPrice = 1.0;
 
-    if (!fromResponse.data.hasOwnProperty('price') || !toResponse.data.hasOwnProperty('price')) return { status: false, message: 'API Error' };
-    else {
-        const rate = fromResponse.data.price / toResponse.data.price * 0.98;
+        if (from !== 'USDT') {
+            try {
+                const fromResponse = await Axios.get(`https://api.binance.com/api/v3/ticker/price?symbol=${from}USDT`);
+                if (fromResponse.data && fromResponse.data.price) {
+                    fromPrice = parseFloat(fromResponse.data.price);
+                }
+            } catch (e) {
+                console.warn(`Binance pair ${from}USDT not found, trying inverse...`);
+                try {
+                    const fromResponse = await Axios.get(`https://api.binance.com/api/v3/ticker/price?symbol=USDT${from}`);
+                    if (fromResponse.data && fromResponse.data.price) {
+                        fromPrice = 1.0 / parseFloat(fromResponse.data.price);
+                    }
+                } catch (e2) {
+                    return { status: false, message: `Exchange rate for ${from} not found` };
+                }
+            }
+        }
+
+        if (to !== 'USDT') {
+            try {
+                const toResponse = await Axios.get(`https://api.binance.com/api/v3/ticker/price?symbol=${to}USDT`);
+                if (toResponse.data && toResponse.data.price) {
+                    toPrice = parseFloat(toResponse.data.price);
+                }
+            } catch (e) {
+                console.warn(`Binance pair ${to}USDT not found, trying inverse...`);
+                try {
+                    const toResponse = await Axios.get(`https://api.binance.com/api/v3/ticker/price?symbol=USDT${to}`);
+                    if (toResponse.data && toResponse.data.price) {
+                        toPrice = 1.0 / parseFloat(toResponse.data.price);
+                    }
+                } catch (e2) {
+                    return { status: false, message: `Exchange rate for ${to} not found` };
+                }
+            }
+        }
+
+        rate = (fromPrice / toPrice) * 0.98; // Applying the 2% fee/margin from original code
         return { status: true, data: rate };
+
+    } catch (err) {
+        console.error({ title: 'cryptoController => getExchangeRateFromBinanceApi', message: err.message });
+        return { status: false, message: 'API Error' };
     }
 }
 

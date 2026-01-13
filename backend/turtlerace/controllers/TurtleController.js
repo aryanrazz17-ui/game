@@ -5,15 +5,24 @@ const { requestWargerAmountUpdate } = require('../socket/Manager');
 
 exports.updateMyBalance = async (data) => {
     try {
-        const { userId, balance } = data;
-        if (!userId)
-            return { status: false, message: 'Invalid Request' };
+        const { userId, balance, isDemo } = data;
+
+        // Handle Demo Mode
+        if (isDemo || !userId || !mongoose.Types.ObjectId.isValid(userId)) {
+            return {
+                status: true,
+                data: { data: [] }, // Mock balance
+                userData: { currency: { coinType: 'BTC', type: 'native' } }
+            };
+        }
 
         const userData = await models.userModel.findOne({ _id: userId });
         if (!userData)
-            return { status: false, message: 'User not found' };
+            return { status: false, message: 'User session not found' };
 
         const currencyIndex = userData.balance.data.findIndex(item => (item.coinType === userData.currency.coinType && item.type === userData.currency.type));
+        if (currencyIndex === -1) return { status: false, message: 'Currency not found' };
+
         if (userData.balance.data[currencyIndex].balance < Number(balance)) {
             return { status: false, message: 'Not enough balance' };
         }
@@ -27,7 +36,6 @@ exports.updateMyBalance = async (data) => {
             else
                 return { status: false, message: 'Not enough balance' };
         }
-
     }
     catch (err) {
         console.error({ title: 'turtleController - updateMyBalance', message: err.message });

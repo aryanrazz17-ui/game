@@ -210,17 +210,19 @@ const SwapContainer = () => {
     }, [exchangeRate, swapAmount]);
 
     const initFunc = async () => {
-        showLoading();
-        const request = { from: currencies[fromCurrency].name, to: currencies[toCurrency].name }
-        const response = await getExchangeRate(request);
-        if (response.status) {
-            setExchangeRate(Number(response.data));
-            setSwapAmount(0);
+        if (currencies.length > 0 && currencies[fromCurrency] && currencies[toCurrency]) {
+            showLoading();
+            const request = { from: currencies[fromCurrency].name, to: currencies[toCurrency].name }
+            const response = await getExchangeRate(request);
+            if (response.status) {
+                setExchangeRate(Number(response.data));
+                setSwapAmount(0);
+            }
+            else {
+                addToast(response.message, { appearance: 'error', autoDismiss: true });
+            }
+            hideLoading();
         }
-        else {
-            addToast(response.message, { appearance: 'error', autoDismiss: true });
-        }
-        hideLoading();
     }
 
     const handleFromCurrency = (e) => {

@@ -656,7 +656,7 @@ const PlinkoGame = () => {
     useEffect(() => {
         window.addEventListener('resize', handleResize);
         window.addEventListener('message', onWindowMessage);
-        PlinkoSocketManager.getInstance().connect();
+        PlinkoSocketManager.getInstance().connect(authData);
         handleResize();
 
         return () => {

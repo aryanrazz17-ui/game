@@ -6,17 +6,33 @@ const { requestBalanceUpdate, requestWargerAmountUpdate } = require('../socket/M
 
 exports.saveScissorsRound = async (data) => {
     try {
-        const userData = await models.userModel.findOne({ _id: data.userId });
+        const { userId, betAmount, isDemo } = data;
+
+        // Handle Demo Mode
+        if (isDemo || !userId || !mongoose.Types.ObjectId.isValid(userId)) {
+            return {
+                status: true,
+                data: { balance: { data: [] } }, // Mock balance
+                roundData: { ...data, _id: 'demo_round_' + Date.now() }
+            };
+        }
+
+        const userData = await models.userModel.findOne({ _id: userId });
+        if (!userData)
+            return { status: false, message: 'User session not found' };
+
         const currencyIndex = userData.balance.data.findIndex(item => (item.coinType === userData.currency.coinType && item.type === userData.currency.type));
-        if (userData.balance.data[currencyIndex].balance < Number(data.betAmount)) {
+        if (currencyIndex === -1) return { status: false, message: 'Currency not found' };
+
+        if (userData.balance.data[currencyIndex].balance < Number(betAmount)) {
             return { status: false, message: 'Not enough balance' };
         }
         else {
-            requestWargerAmountUpdate({ userId: data.userId, amount: data.betAmount, coinType: userData.currency });
+            requestWargerAmountUpdate({ userId: userId, amount: betAmount, coinType: userData.currency });
             const roundData = await new models.scissorsRoundModel({
                 roundNumber: data.roundNumber,
-                userId: data.userId,
-                betAmount: data.betAmount,
+                userId: userId,
+                betAmount: betAmount,
                 coinType: data.coinType,
                 betNumber: data.playerNumber,
                 winNumber: data.dealerNumber,
@@ -27,12 +43,12 @@ exports.saveScissorsRound = async (data) => {
                 roundDate: new Date()
             }).save();
             if (data.result === 'win') {
-                userData.balance.data[currencyIndex].balance = userData.balance.data[currencyIndex].balance + data.betAmount * (payout - 1);
-                await models.userModel.findOneAndUpdate({ _id: data.userId }, { 'balance': userData.balance });
+                userData.balance.data[currencyIndex].balance = userData.balance.data[currencyIndex].balance + betAmount * (payout - 1);
+                await models.userModel.findOneAndUpdate({ _id: userId }, { 'balance': userData.balance });
             }
             else if (data.result === 'lost') {
-                userData.balance.data[currencyIndex].balance = userData.balance.data[currencyIndex].balance - data.betAmount;
-                await models.userModel.findOneAndUpdate({ _id: data.userId }, { 'balance': userData.balance });
+                userData.balance.data[currencyIndex].balance = userData.balance.data[currencyIndex].balance - betAmount;
+                await models.userModel.findOneAndUpdate({ _id: userId }, { 'balance': userData.balance });
             }
             setTimeout(() => {
                 requestBalanceUpdate(userData);
@@ -42,7 +58,7 @@ exports.saveScissorsRound = async (data) => {
     }
     catch (err) {
         console.error({ title: 'scissorsController => saveScissorsRound', message: err.message });
-        return { status: false, message: err.message };
+        return { status: false, message: 'Server Error' };
     }
 }
 

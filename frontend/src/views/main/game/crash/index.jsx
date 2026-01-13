@@ -403,7 +403,7 @@ const CrashGame = () => {
     useEffect(() => {
         window.addEventListener('message', onWindowMessage);
         window.addEventListener("resize", resizeHandler);
-        CrashSocketManager.getInstance().connect();
+        CrashSocketManager.getInstance().connect(authData);
 
         gameApp = new CrashApp({
             backgroundColor: 0x000000,
@@ -676,10 +676,8 @@ const CrashGame = () => {
     }
 
     const handleBet = () => {
-        if (authData.isAuth) {
-            playEffectSound(playClickSound);
-            sendJoinBet();
-        }
+        playEffectSound(playClickSound);
+        sendJoinBet();
     };
 
     const handleCancel = () => {
@@ -689,29 +687,23 @@ const CrashGame = () => {
     }
 
     const handleCashout = () => {
-        if (authData.isAuth) {
-            const request = {
-                userId: authData.userData._id
-            };
-            CrashSocketManager.getInstance().cashoutBet(request);
-        }
+        const request = {
+            userId: authData.isAuth ? authData.userData._id : `guest_${Date.now()}`
+        };
+        CrashSocketManager.getInstance().cashoutBet(request);
     }
 
     const handleAutoBet = () => {
-        if (authData.isAuth) {
-            playEffectSound(playClickSound);
-            setAutoFinished(false);
-            setRemainAutoRound(autoCount);
-            sendJoinBet();
-        }
+        playEffectSound(playClickSound);
+        setAutoFinished(false);
+        setRemainAutoRound(autoCount);
+        sendJoinBet();
     };
 
     const handleStopAutoBet = () => {
-        if (authData.isAuth) {
-            setAutoFinished(true);
-            sendCancelBet();
-            setRemainAutoRound(0);
-        }
+        setAutoFinished(true);
+        sendCancelBet();
+        setRemainAutoRound(0);
     };
 
     const handleAmountAction = (type) => {
@@ -731,11 +723,13 @@ const CrashGame = () => {
     };
 
     const sendJoinBet = () => {
+        const isDemo = !authData.isAuth;
         const request = {
-            userId: authData.userData._id,
+            userId: authData.isAuth ? authData.userData._id : `guest_${Math.floor(Math.random() * 1000000)}`,
             betAmount: betAmount,
-            coinType: currency,
-            payout: cashoutAt
+            coinType: currency || { coinType: 'BTC', type: 'native' },
+            payout: cashoutAt,
+            isDemo: isDemo
         };
         CrashSocketManager.getInstance().joinBet(request);
     };

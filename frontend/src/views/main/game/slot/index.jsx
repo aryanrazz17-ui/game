@@ -300,7 +300,7 @@ const SlotGame = () => {
     useEffect(() => {
         window.addEventListener('message', onWindowMessage);
         window.addEventListener("resize", resizeHandler);
-        SlotSocketManager.getInstance().connect();
+        SlotSocketManager.getInstance().connect(authData);
 
         gameApp = new SlotApp({
             // resolution: devicePixelRatio,

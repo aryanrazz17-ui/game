@@ -23,11 +23,25 @@ exports.getSeedData = async (userId) => {
 
 exports.saveSlotRound = async (data) => {
     try {
-        const { serverSeed, clientSeed, roundNumber, userId, betAmount, rewardData, payout, roundResult } = data;
+        const { serverSeed, clientSeed, roundNumber, userId, betAmount, rewardData, payout, roundResult, isDemo } = data;
+
+        // Handle Demo Mode
+        if (isDemo || !userId || !mongoose.Types.ObjectId.isValid(userId)) {
+            return {
+                status: true,
+                data: { balance: { data: [] } }, // Mock balance
+                roundData: { ...data, _id: 'demo_round_' + Date.now() }
+            };
+        }
+
         const userData = await models.userModel.findOne({ _id: userId });
+        if (!userData)
+            return { status: false, message: 'User session not found' };
 
         const currencyIndex = userData.balance.data.findIndex(item => (item.coinType === userData.currency.coinType && item.type === userData.currency.type));
-        if (userData.balance.data[currencyIndex].balance < Number(data.betAmount)) {
+        if (currencyIndex === -1) return { status: false, message: 'Currency not found' };
+
+        if (userData.balance.data[currencyIndex].balance < Number(betAmount)) {
             return { status: false, message: 'Not enough balance' };
         }
         else {
@@ -45,12 +59,12 @@ exports.saveSlotRound = async (data) => {
                 roundDate: new Date()
             }).save();
             userData.balance.data[currencyIndex].balance = userData.balance.data[currencyIndex].balance + betAmount * (payout - 1);
-            await models.userModel.findOneAndUpdate({ _id: data.userId }, { balance: userData.balance });
+            await models.userModel.findOneAndUpdate({ _id: userId }, { balance: userData.balance });
             return { status: true, data: userData, roundData: roundData };
         }
     }
     catch (err) {
         console.error({ title: 'SlotController => saveSlotRound', message: err.message });
-        return { status: false, message: err.message };
+        return { status: false, message: 'Server Error' };
     }
 }

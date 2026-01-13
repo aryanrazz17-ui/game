@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { ThemeProvider } from "@mui/material/styles";
 import { CssBaseline, StyledEngineProvider } from "@mui/material";
@@ -11,8 +12,11 @@ import baseInit from "redux/actions/base";
 
 const App = () => {
     const customization = useSelector((state) => state.customization);
-    chatRoomConnect();
-    baseInit();
+
+    useEffect(() => {
+        chatRoomConnect();
+        baseInit();
+    }, []);
 
     // Use placeholder client ID if not configured (prevents errors, but Google OAuth won't work)
     const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID || 'placeholder-client-id';

@@ -5,9 +5,9 @@ import WalletModal from "views/main/modals/WalletModal";
 import clsx from "clsx";
 import { useEffect, useState, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { ReactComponent as MenuCollapeIcon } from "assets/icons/MenuCollaps.svg";
-import { ReactComponent as MobileMenuCollapeIcon } from "assets/icons/mobile-menu.svg";
-import { ReactComponent as LogoIcon } from "assets/icons/Logo.svg";
+// import { ReactComponent as MenuCollapeIcon } from "assets/icons/MenuCollaps.svg";
+// import { ReactComponent as MobileMenuCollapeIcon } from "assets/icons/mobile-menu.svg";
+// import { ReactComponent as LogoIcon } from "assets/icons/Logo.svg";
 import { ReactComponent as AlarmIcon } from "assets/icons/AlarmIcon.svg";
 import { ReactComponent as ChatIcon } from "assets/icons/ChatIcon.svg";
 import { ReactComponent as SystemMessageIcon } from "assets/icons/MessageIcon.svg";
@@ -336,7 +336,7 @@ const MainHeader = () => {
     const privacyModalOpen = modalOption.privacyModal;
 
     const [authType, setAuthType] = useState(0);
-    const currency = authData.isAuth ? authData.userData.currency : '';
+    const activeCurrency = (authData.isAuth && authData.userData) ? authData.userData.currency : { coinType: '', type: '' };
 
     const [profileMenu, setProfileMenu] = useState(false);
     const [chatPage, setChatPage] = useState(false);
@@ -351,10 +351,15 @@ const MainHeader = () => {
     const chatWidgetRef = useRef();
 
     useEffect(() => {
+        const handleOpenAuth = (e) => {
+            setAuthType(e.detail || 1);
+        };
+        window.addEventListener('OPEN_AUTH_MODAL', handleOpenAuth);
         document.addEventListener('click', handleClickOutside);
         getCurrencyData();
 
         return () => {
+            window.removeEventListener('OPEN_AUTH_MODAL', handleOpenAuth);
             document.removeEventListener('click', handleClickOutside);
         }
         // eslint-disable-next-line
@@ -448,9 +453,9 @@ const MainHeader = () => {
         setWalletModalOpen(true)
     };
 
-    const handleMenuCollape = () => {
-        // dispatch({ type: 'SET_MENUVISIBLE', data: !menuOption.menuVisible });
-    };
+    // const handleMenuCollape = () => {
+    //     // dispatch({ type: 'SET_MENUVISIBLE', data: !menuOption.menuVisible });
+    // };
 
     const handleChatVisible = () => {
         setChatPage(!chatPage);
@@ -469,9 +474,9 @@ const MainHeader = () => {
         if (flag) setProfileMenu(false);
     };
 
-    const handleMobileMenu = (flag) => {
-        setMenuModal(true);
-    };
+    // const handleMobileMenu = (flag) => {
+    //     setMenuModal(true);
+    // };
 
     const updatePlayerCurrency = async (newCurrency) => {
         if (authData.isAuth) {
@@ -510,14 +515,14 @@ const MainHeader = () => {
                         <Select
                             labelId="currencyType"
                             id="currencyType"
-                            value={JSON.stringify(currency)}
+                            value={JSON.stringify({ coinType: activeCurrency.coinType, type: activeCurrency.type })}
                             onChange={handleCurrency}
                             className={classes.CustomSelect}
                             disabled={!authData.isAuth}
                         >
                             {
                                 currencies.map((currency, index) => {
-                                    let currencyBalance = (authData.balanceData && authData.balanceData.length > 0) ? authData.balanceData.find((data) => data.coinType === currency.name && data.type === currency.token) : { balance: 0 };
+                                    let currencyBalance = (authData.balanceData && authData.balanceData.length > 0) ? (authData.balanceData.find((data) => data.coinType === currency.name && data.type === currency.token) || { balance: 0 }) : { balance: 0 };
                                     return (
                                         <MenuItem key={index} value={JSON.stringify({ coinType: currency.name, type: currencyBalance.type })} className={classes.CustomMenuItem}>
                                             <img className={classes.CurrencyIcon} src={`/assets/images/coins/${currency.name.toLowerCase()}.png`} alt='icon' />

@@ -206,7 +206,7 @@ const WalletManagement = () => {
                         Object.keys(balanceData).map((key) => {
                             return (
                                 <span key={key}>
-                                    {balanceData[key].availableBalance} {key},
+                                    {balanceData[key]?.availableBalance || 0} {key},
                                 </span>
                             )
                         })

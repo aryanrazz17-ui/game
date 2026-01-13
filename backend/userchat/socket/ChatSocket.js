@@ -1,28 +1,30 @@
+const BaseSocket = require('../../shared/utils/BaseSocket');
+const socketHelper = require('../../shared/utils/socketHelper');
 const dataManager = require('../manager/DataManager');
 
-module.exports = class ChatSocket {
-    socket = null;
-
+module.exports = class ChatSocket extends BaseSocket {
     constructor(server) {
-        this.socket = require('socket.io')({
-            cors: {
-                origin: '*',
-                method: ['GET', 'POST']
-            }
-        }).listen(server);
+        super(server, 'ChatSocket');
         this.bind();
     }
 
     bind() {
         this.socket.on('connection', (client) => {
-            console.log(`*** Socket ${client.id} connected! ***`);
+            console.log(`*** Chat Socket ${client.id} connected! ***`);
+
+            if (client.user) {
+                dataManager.addUserSocket(client.user._id.toString(), client.id);
+            }
 
             client.on('reconnect', (request) => {
-                dataManager.addUserSocket(request.userId, client.id);
+                const userId = client.user?._id?.toString() || request.userId;
+                if (userId) {
+                    dataManager.addUserSocket(userId, client.id);
+                }
             });
 
             client.on('disconnect', () => {
-                console.log(`### Socket ${client.id} disconnected ###`);
+                console.log(`### Chat Socket ${client.id} disconnected ###`);
                 dataManager.removeUserSocket(client.id);
             });
 
@@ -30,17 +32,13 @@ module.exports = class ChatSocket {
                 dataManager.getChatData(callback);
             });
 
-            client.on('sendNewChat', (request) => {
-                dataManager.newChat(request, client.id);
+            client.on('sendNewChat', (data) => {
+                // errorEvent is null because chat usually doesn't emit error back on failure, 
+                // but we could use 'chatError' if desired.
+                socketHelper.processSecureEvent(client, data, 'sendNewChat', null, (payload, socketId) => {
+                    dataManager.newChat(payload, socketId);
+                });
             });
         });
-    }
-
-    broadCast(packetName, packetData = null) {
-        this.socket.emit(packetName, packetData);
-    }
-
-    sendTo(socket, packetName, packetData = null) {
-        this.socket.to(socket).emit(packetName, packetData);
     }
 }

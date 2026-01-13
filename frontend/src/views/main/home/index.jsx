@@ -3,7 +3,7 @@ import { makeStyles } from "@mui/styles";
 import clsx from "clsx";
 import { LoadingContext } from "layout/Context/loading";
 import { useContext, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useToasts } from "react-toast-notifications";
 import DataTable from "views/components/datatable";
 import { getBannerText } from "redux/actions/auth";
@@ -303,6 +303,7 @@ const GameBannerItems = [
 const Home = () => {
     const classes = useStyles();
     const { addToast } = useToasts();
+    const navigate = useNavigate();
     const { showLoading, hideLoading } = useContext(LoadingContext);
 
     const [historyState, setHistoryState] = useState(0);
@@ -329,6 +330,14 @@ const Home = () => {
         hideLoading();
     };
 
+    const handleDemo = () => {
+        navigate('/app/games');
+    };
+
+    const handleRegister = () => {
+        window.dispatchEvent(new CustomEvent('OPEN_AUTH_MODAL', { detail: 2 }));
+    };
+
     return (
         <Box className={classes.RootContainer}>
             <Box className={classes.CarouselBox}>
@@ -339,8 +348,8 @@ const Home = () => {
                         <Box className={classes.BannerDesc}>{topBannerData.text2}</Box>
                         <span className={classes.BannerText}>{topBannerData.text3}</span>
                         <Box className={classes.BannerButtonBox}>
-                            <Box className={clsx(classes.BannerButton, classes.RegisterButton)}>Register Now</Box>
-                            <Box className={clsx(classes.BannerButton, classes.DemoButton)}>Demo Game</Box>
+                            <Box className={clsx(classes.BannerButton, classes.RegisterButton)} onClick={handleRegister}>Register Now</Box>
+                            <Box className={clsx(classes.BannerButton, classes.DemoButton)} onClick={handleDemo}>Demo Game</Box>
                         </Box>
                     </Box>
                 </Box>

@@ -15,8 +15,16 @@ export default class DiceSocketManager {
     }
 
     connect(authData) {
-        this.socket = io(Config.Root.diceSocketUrl, { transports: ['websocket'] });
         this.authData = authData;
+        const token = localStorage.getItem('token');
+        this.socket = io(Config.Root.diceSocketUrl, {
+            transports: ['websocket'],
+            auth: {
+                token: token,
+                userId: authData.userData?._id,
+                isDemo: !authData.isAuth
+            }
+        });
         let self = this;
 
         this.socket.on('connect', function () {

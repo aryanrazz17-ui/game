@@ -27,24 +27,32 @@ const removeRound = async (data) => {
         let index = AllMines.findIndex((minesRound) => minesRound.isOwner(userId));
         if (index >= 0) {
             const roundData = AllMines[index];
-            const result = await MinesController.saveMinesRound(roundData);
-            if (result.status) {
-                SocketManager.sendBetHistory({
-                    userId: result.data.userId,
-                    gameType: 'mines',
-                    roundNumber: result.data.roundNumber,
-                    betAmount: result.data.betAmount,
-                    coinType: result.data.coinType,
-                    payout: result.data.payout,
-                    roundResult: result.data.roundResult,
-                    roundState: true
-                });
+            if (!roundData.isDemo) {
+                const result = await MinesController.saveMinesRound(roundData);
+                if (result.status) {
+                    SocketManager.sendBetHistory({
+                        userId: result.data.userId,
+                        gameType: 'mines',
+                        roundNumber: result.data.roundNumber,
+                        betAmount: result.data.betAmount,
+                        coinType: result.data.coinType,
+                        payout: result.data.payout,
+                        roundResult: result.data.roundResult,
+                        roundState: true
+                    });
+                }
             }
 
             let balanceData;
             if (roundData.roundResult === RoundResult.payout || roundData.roundResult === RoundResult.finish) {
                 let amount = Number(Number(roundData.betAmount * roundData.currentPayout).toFixed(6));
-                const response = await MinesController.updateMyBalance({ userId: roundData.userId, coinType: roundData.coinType, betAmount: -amount, type });
+                const response = await MinesController.updateMyBalance({
+                    userId: roundData.userId,
+                    coinType: roundData.coinType,
+                    betAmount: -amount,
+                    type,
+                    isDemo: roundData.isDemo
+                });
                 if (response.status)
                     balanceData = response.data;
             }
@@ -70,7 +78,15 @@ exports.getMinesRound = async (data, socket) => {
             let seedData = await MinesController.getSeedData(userId);
             const balanceResult = await MinesController.updateMyBalance(data);
             if (balanceResult.status) {
-                let minesData = new MinesRound({ userId, betAmount, coinType, minesCount, clientSeed: seedData.clientSeedData.seed, serverSeed: seedData.serverSeedData.seed });
+                let minesData = new MinesRound({
+                    userId,
+                    betAmount,
+                    coinType,
+                    minesCount,
+                    clientSeed: seedData.clientSeedData.seed,
+                    serverSeed: seedData.serverSeedData.seed,
+                    isDemo: data.isDemo
+                });
                 AllMines.push(minesData);
                 SocketManager.sendBetResult({ status: true, currentPayout: minesData.currentPayout, nextPayout: minesData.nextPayout, balanceData: balanceResult.data }, socket);
             }

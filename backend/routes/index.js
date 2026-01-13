@@ -3,7 +3,7 @@ const paymentRouter = require('./paymentRouter');
 const authRouter = require('./authRouter');
 const Router = routerx();
 
-Router.use('/api/v0/payment', paymentRouter);
-Router.use('/api/auth', authRouter);
+Router.use('/v0/payment', paymentRouter);
+Router.use('/auth', authRouter);
 
 module.exports = Router;

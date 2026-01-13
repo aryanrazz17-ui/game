@@ -4,21 +4,27 @@ module.exports = {
         expireIn: '1h',
         secret: 'PLAYZELOSECRET'
     },
-    DB: 'mongodb+srv://victoryfox1116:kzBPFHRoRfxdDGVO@cluster0.iknukbk.mongodb.net/PlayZelo?authSource=admin&replicaSet=atlas-10v8gb-shard-0&w=majority&readPreference=primary&appname=MongoDB%20Compass&retryWrites=true&ssl=true',
+    DB: process.env.MONGODB_URI || 'mongodb+srv://victoryfox1116:kzBPFHRoRfxdDGVO@cluster0.iknukbk.mongodb.net/PlayZelo?authSource=admin&replicaSet=atlas-10v8gb-shard-0&w=majority&readPreference=primary&appname=MongoDB%20Compass&retryWrites=true&ssl=true',
     MANAGEMENT_OPTION: {
         port: 4000
     },
     TATUM_OPTION: {
         testnet: {
-            apikey: 't-64ddb376ba1bfa001cda4484-64de0f87946f4c001cc79647',
+            apikey: process.env.TATUM_API_KEY_TESTNET,
             virtualAccount: 'PlayZeloPaymentTestnet',
             withdrawFee: '0.00001'
         },
         mainnet: {
-            apikey: 't-64ddb376ba1bfa001cda4484-64de0f6a143e73001c21f64d',
+            apikey: process.env.TATUM_API_KEY_MAINNET,
             virtualAccount: 'PlayZeloPaymentMainnet',
             withdrawFee: '0.00001'
         }
+    },
+    CASHFREE_OPTION: {
+        appId: process.env.CASHFREE_APP_ID,
+        secretKey: process.env.CASHFREE_SECRET_KEY,
+        apiVersion: '2022-09-01',
+        env: process.env.CASHFREE_ENV || 'TEST' // TEST or PROD
     },
     INFURA_OPTION: {
         testnet: {

@@ -54,6 +54,7 @@
     "mongoose-sequence": "^5.3.1",
     "node-cron": "^3.0.2",
     "node-random-name": "^1.0.1",
+    "nodemailer": "^7.0.12",
     "path": "^0.12.7",
     "socket.io": "^4.5.4",
     "socket.io-client": "^4.6.1",

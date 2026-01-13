@@ -8,7 +8,13 @@ const ModelSchema = mongoose.Schema({
     date: { type: Date, default: Date() },
     blockNumber: { type: String, default: '' },
     subscriptionType: { type: String, default: '' },
-    currency: { type: Object }
+    currency: { type: Object },
+    // New fields for Fiat/Payment Gateway
+    status: { type: String, enum: ['pending', 'success', 'failed', 'refunded'], default: 'pending' },
+    paymentGateway: { type: String, enum: ['Tatum', 'Cashfree', 'Manual'], default: 'Tatum' },
+    orderId: { type: String, default: '' }, // Cashfree Order ID
+    referenceId: { type: String, default: '' }, // Cashfree Reference ID
+    paymentMode: { type: String, default: '' } // UPI, NetBanking, etc.
 }, { autoIndex: true, timestamps: true });
 
 ModelSchema.set('toObject', { virtuals: true });

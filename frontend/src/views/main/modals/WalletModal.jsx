@@ -359,9 +359,13 @@ const WalletModal = ({ open, setOpen }) => {
     }, [open, pageType, depositCurrencyType, withdrawCurrencyType]);
 
     const loadDepositAddress = async () => {
-        if (open) {
+        if (open && userData?._id && currencies[depositCurrencyType]) {
             showLoading();
-            const request = { coinType: currencies[depositCurrencyType].name, type: currencies[depositCurrencyType].token, userId: userData?._id };
+            const request = {
+                coinType: currencies[depositCurrencyType].name,
+                type: currencies[depositCurrencyType].token,
+                userId: userData?._id
+            };
             const response = await getDepositAddress(request);
             if (response.status) {
                 setDepositAddress(response.data.address);
@@ -375,13 +379,15 @@ const WalletModal = ({ open, setOpen }) => {
     };
 
     const loadBalanceData = async () => {
-        const request = { userId: userData?._id };
-        const response = await getMyBalances(request);
-        if (response.status) {
-            dispatch({ type: 'SET_BALANCEDATA', data: response.data.data });
-        }
-        else {
-            addToast(response.message, { appearance: 'error', autoDismiss: true });
+        if (userData?._id) {
+            const request = { userId: userData?._id };
+            const response = await getMyBalances(request);
+            if (response.status) {
+                dispatch({ type: 'SET_BALANCEDATA', data: response.data.data });
+            }
+            else {
+                addToast(response.message, { appearance: 'error', autoDismiss: true });
+            }
         }
     }
 

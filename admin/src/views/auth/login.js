@@ -62,15 +62,13 @@ const Login = () => {
     const [token, setToken] = useState('');
 
     const handleFormData = (data, field) => {
-        let tempData = formData;
-        tempData[field] = data;
-        setFormData({ ...tempData });
+        setFormData(prev => ({ ...prev, [field]: data }));
     };
 
     const handleSignin = async () => {
         showLoading();
-        if(formData.userName !== '') {
-            if(formData.password !== '') {
+        if (formData.userName !== '') {
+            if (formData.password !== '') {
                 const requestData = {
                     admin_id: formData.userName,
                     admin_pwd: formData.password
@@ -78,7 +76,7 @@ const Login = () => {
 
                 const response = await userLogin(requestData);
                 if (response.status) {
-                    if(response.otp) {
+                    if (response.otp) {
                         setPageState(1);
                         setToken(response.id);
                     }
@@ -102,7 +100,7 @@ const Login = () => {
         else {
             addToast('Please input userName', { appearance: 'error', autoDismiss: true });
         }
-        
+
         hideLoading();
     }
 

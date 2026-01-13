@@ -1,15 +1,10 @@
+const BaseSocket = require('../../shared/utils/BaseSocket');
+const socketHelper = require('../../shared/utils/socketHelper');
 const dataManager = require('../manager/DataManager');
 
-module.exports = class CrashSocket {
-    socket = null;
-
+module.exports = class CrashSocket extends BaseSocket {
     constructor(server) {
-        this.socket = require('socket.io')({
-            cors: {
-                origin: '*',
-                method: ['GET', 'POST']
-            }
-        }).listen(server);
+        super(server, 'CrashSocket');
         this.bind();
         dataManager.createRound([]);
     }
@@ -22,29 +17,31 @@ module.exports = class CrashSocket {
                 console.log(`### Socket ${client.id} disconnected ###`);
             });
 
-            client.on('joinBet', (request) => {
-                dataManager.addBetUser(request, client.id);
+            client.on('joinBet', (data) => {
+                socketHelper.processSecureEvent(client, data, 'joinBet', 'joinBetResult', (payload, socketId) => {
+                    dataManager.addBetUser(payload, socketId);
+                });
             });
 
-            client.on('cancelBet', (request) => {
-                dataManager.removeBetUser(request, client.id);
+            client.on('cancelBet', (data) => {
+                socketHelper.processSecureEvent(client, data, 'cancelBet', 'cancelBetResult', (payload, socketId) => {
+                    dataManager.removeBetUser(payload, socketId);
+                });
             });
 
-            client.on('cashoutBet', (request) => {
-                dataManager.cashoutBet(request, client.id);
+            client.on('cashoutBet', (data) => {
+                socketHelper.processSecureEvent(client, data, 'cashoutBet', 'cashoutBetResult', (payload, socketId) => {
+                    dataManager.cashoutBet(payload, socketId);
+                });
             });
 
-            client.on('getInitData', (request) => {
-                dataManager.getInitData(request, client.id);
+            client.on('getInitData', (data) => {
+                // getInitData is often allowed for guests too, but we want verified userId if possible
+                if (client.user) {
+                    data.userId = client.user._id.toString();
+                }
+                dataManager.getInitData(data, client.id);
             });
         });
-    }
-
-    broadCast(packetName, packetData = null) {
-        this.socket.emit(packetName, packetData);
-    }
-
-    sendTo(socket, packetName, packetData = null) {
-        this.socket.to(socket).emit(packetName, packetData);
     }
 }

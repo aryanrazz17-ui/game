@@ -1,3 +1,5 @@
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '../.env') });
 const config = require('./config');
 const app = require('./app').createApp(config);
 const dbBackup = require('./mongodump/index');

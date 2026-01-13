@@ -1,15 +1,10 @@
+const BaseSocket = require('../../shared/utils/BaseSocket');
+const socketHelper = require('../../shared/utils/socketHelper');
 const dataManager = require('../manager/DataManager');
 
-module.exports = class TurtleraceSocket {
-    socket = null;
-
+module.exports = class TurtleraceSocket extends BaseSocket {
     constructor(server) {
-        this.socket = require('socket.io')({
-            cors: {
-                origin: '*',
-                method: ['GET', 'POST']
-            }
-        }).listen(server);
+        super(server, 'TurtleraceSocket');
         this.bind();
         dataManager.createRound();
     }
@@ -19,7 +14,10 @@ module.exports = class TurtleraceSocket {
             console.log(`*** Socket ${client.id} connected! ***`);
 
             client.on('reconnect', (request) => {
-                dataManager.addUserSocket(request.userId, client.id);
+                const userId = client.user?._id?.toString() || request.userId;
+                if (userId) {
+                    dataManager.addUserSocket(userId, client.id);
+                }
             });
 
             client.on('disconnect', () => {
@@ -27,25 +25,21 @@ module.exports = class TurtleraceSocket {
                 dataManager.removeUserSocket(client.id);
             });
 
-            client.on('join_bet', (request) => {
-                dataManager.addBetUser(request, client.id);
+            client.on('join_bet', (data) => {
+                socketHelper.processSecureEvent(client, data, 'join_bet', 'joinBetResult', (payload, socketId) => {
+                    dataManager.addBetUser(payload, socketId);
+                });
             });
 
-            client.on('cancel_bet', (request) => {
-                dataManager.removeBetUser(request, client.id);
+            client.on('cancel_bet', (data) => {
+                socketHelper.processSecureEvent(client, data, 'cancel_bet', 'cancelBetResult', (payload, socketId) => {
+                    dataManager.removeBetUser(payload, socketId);
+                });
             });
 
             client.on('current_round', () => {
                 dataManager.currentRound(client.id);
             });
         });
-    }
-
-    broadCast(packetName, packetData = null) {
-        this.socket.emit(packetName, packetData);
-    }
-
-    sendTo(socket, packetName, packetData = null) {
-        this.socket.to(socket).emit(packetName, packetData);
     }
 }

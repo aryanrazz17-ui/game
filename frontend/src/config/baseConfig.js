@@ -11,13 +11,13 @@ const Config = {
         socket: null,
         chatSocket: null,
         chatSocketUrl: isLocal ? 'http://localhost:4900' : 'https://chat.memewarsx.com:4901',
-        // turtleraceSocketUrl: isLocal ? 'http://localhost:5100' : 'https://api.memewarsx.com:5100',
+        turtleraceSocketUrl: isLocal ? 'http://localhost:5100' : 'https://api.memewarsx.com:5100',
         scissorSocketUrl: isLocal ? 'http://localhost:5200' : 'https://scissors.memewarsx.com:5201',
-        // minesSocketUrl: isLocal ? 'http://localhost:5300' : 'https://api.memewarsx.com:5300',
-        // diceSocketUrl: isLocal ? 'http://localhost:5400' : 'https://api.memewarsx.com:5400',
-        // slotSocketUrl: isLocal ? 'http://localhost:5500' : 'https://api.memewarsx.com:5500',
-        // plinkoSocketUrl: isLocal ? 'http://localhost:5600' : 'https://api.memewarsx.com:5600',
-        // crashSocketUrl: isLocal ? 'http://localhost:5700' : 'https://api.memewarsx.com:5700'
+        minesSocketUrl: isLocal ? 'http://localhost:5300' : 'https://api.memewarsx.com:5300',
+        diceSocketUrl: isLocal ? 'http://localhost:5400' : 'https://api.memewarsx.com:5400',
+        slotSocketUrl: isLocal ? 'http://localhost:5500' : 'https://api.memewarsx.com:5500',
+        plinkoSocketUrl: isLocal ? 'http://localhost:5600' : 'https://api.memewarsx.com:5600',
+        crashSocketUrl: isLocal ? 'http://localhost:5700' : 'https://api.memewarsx.com:5700'
     },
     token: 'PlayZelo',
     request: {

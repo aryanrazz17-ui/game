@@ -13,14 +13,16 @@ exports.getAuthData = async (req, res) => {
         if (!token)
             return res.json({ status: false, message: 'Invalid Request' });
 
-        const response = await models.userModel.findOne({ userToken: token });
-        if (response) {
-            const settingData = await models.gameSettingModel.findOne({ userId: response._id });
+        const user = await models.userModel.findOne({ userToken: token });
+        if (user) {
+            const settingData = await models.gameSettingModel.findOne({ userId: user._id });
             if (!settingData) {
-                let saveData = await models.gameSettingModel({ userId: response._id }).save();
-                return res.json({ status: true, data: response, setting: saveData });
+                let savedSetting = await models.gameSettingModel({ userId: user._id }).save();
+                return res.json({ status: true, data: user, setting: savedSetting });
             }
-            return res.json({ status: true, data: response, setting: settingData });
+            return res.json({ status: true, data: user, setting: settingData });
+        } else {
+            return res.json({ status: false, message: 'User session not found' });
         }
     }
     catch (err) {
@@ -206,7 +208,7 @@ exports.verifyEmailCode = async (req, res) => {
                 }
                 let userToken = JWT.sign({ userName: saveData.userName, type: saveData.type, loginType: saveData.loginType }, config.JWT.secret, { expiresIn: config.JWT.expireIn });
                 saveData.userToken = userToken;
-                let data = await new models.userModel(saveData).save();
+                const newUser = await new models.userModel(saveData).save();
 
                 let flag = false;
                 do {
@@ -214,17 +216,17 @@ exports.verifyEmailCode = async (req, res) => {
                     let exist = await models.campaignCodeModel.findOne({ code: campaignCode });
                     if (!exist) {
                         flag = true;
-                        await new models.campaignCodeModel({ userId: data._id, code: campaignCode }).save();
+                        await new models.campaignCodeModel({ userId: newUser._id, code: campaignCode }).save();
                     }
                 } while (!flag);
 
-                const settingData = await models.gameSettingModel.findOne({ userId: data._id });
+                const settingData = await models.gameSettingModel.findOne({ userId: newUser._id });
                 if (!settingData) {
-                    let saveData = await models.gameSettingModel({ userId: data._id }).save();
-                    return res.json({ status: true, userData: data, setting: saveData });
+                    let newSetting = await models.gameSettingModel({ userId: newUser._id }).save();
+                    return res.json({ status: true, userData: newUser, setting: newSetting });
                 }
                 else {
-                    return res.send({ status: true, userData: data, setting: settingData });
+                    return res.send({ status: true, userData: newUser, setting: settingData });
                 }
             }
             else {
@@ -287,8 +289,9 @@ exports.getMyBalance = async (req, res) => {
 exports.getMyBalances = async (req, res) => {
     try {
         const { userId } = req.body;
+        console.log("getMyBalances Request userId:", userId);
         if (!userId)
-            return res.json({ status: false, message: 'Invalid Request' });
+            return res.json({ status: false, message: 'Invalid Request: userId is missing' });
 
         const userData = await models.userModel.findOne({ _id: userId });
         if (!userData)

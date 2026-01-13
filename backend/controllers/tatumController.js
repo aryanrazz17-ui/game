@@ -79,10 +79,7 @@ exports.createVirtualAccount = async (data) => {
                 externalId: config.TATUM_OPTION[config.NETWORK].virtualAccount,
                 providerCountry: 'US'
             },
-            compliant: true,
-            accountCode: config.TATUM_OPTION[config.NETWORK].virtualAccount,
-            accountingCurrency: 'USD',
-            accountNumber: config.TATUM_OPTION[config.NETWORK].virtualAccount
+            accountingCurrency: 'USD'
         };
         const response = await TatumAxios.post('/ledger/account', JSON.stringify(request));
         return response.data;

@@ -1,15 +1,10 @@
+const BaseSocket = require('../../shared/utils/BaseSocket');
+const socketHelper = require('../../shared/utils/socketHelper');
 const dataManager = require('../manager/DataManager');
 
-module.exports = class ScissorsSocket {
-    socket = null;
-
+module.exports = class MinesSocket extends BaseSocket {
     constructor(server) {
-        this.socket = require('socket.io')({
-            cors: {
-                origin: '*',
-                method: ['GET', 'POST']
-            }
-        }).listen(server);
+        super(server, 'MinesSocket');
         this.bind();
     }
 
@@ -17,8 +12,16 @@ module.exports = class ScissorsSocket {
         this.socket.on('connection', (client) => {
             console.log(`*** Socket ${client.id} connected! ***`);
 
+            // Use authenticated user from middleware if available
+            if (client.user && client.user._id) {
+                dataManager.addUserSocket(client.user._id.toString(), client.id);
+            }
+
             client.on('reconnect', (request) => {
-                dataManager.addUserSocket(request.userId, client.id);
+                const userId = client.user?._id?.toString() || request.userId;
+                if (userId) {
+                    dataManager.addUserSocket(userId, client.id);
+                }
             });
 
             client.on('disconnect', () => {
@@ -27,28 +30,28 @@ module.exports = class ScissorsSocket {
             });
 
             client.on('join_bet', (data) => {
-                dataManager.joinBet(data, client.id);
+                socketHelper.processSecureEvent(client, data, 'join_bet', 'joinBetResult', (payload, socketId) => {
+                    dataManager.joinBet(payload, socketId);
+                });
             });
 
             client.on('finish_bet', (data) => {
-                dataManager.finishBet(data, client.id);
+                socketHelper.processSecureEvent(client, data, 'finish_bet', 'roundResult', (payload, socketId) => {
+                    dataManager.finishBet(payload, socketId);
+                });
             });
 
             client.on('pick_cell', (data) => {
-                dataManager.pickCell(data, client.id);
+                socketHelper.processSecureEvent(client, data, 'pick_cell', 'pickCellResult', (payload, socketId) => {
+                    dataManager.pickCell(payload, socketId);
+                });
             });
 
             client.on('active_round', (data) => {
+                if (!client.user) return;
+                data.userId = client.user._id.toString();
                 dataManager.getActiveRound(data, client.id);
             });
         });
-    }
-
-    broadCast(packetName, packetData = null) {
-        this.socket.emit(packetName, packetData);
-    }
-
-    sendTo(socket, packetName, packetData = null) {
-        this.socket.to(socket).emit(packetName, packetData);
     }
 }

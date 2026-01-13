@@ -5,7 +5,13 @@ const { requestWargerAmountUpdate } = require('../socket/Manager');
 
 exports.updateMyBalance = async (data) => {
     try {
-        const { userId, betAmount, type } = data;
+        const { userId, betAmount, type, isDemo } = data;
+
+        // 1. Handle Demo Mode
+        if (isDemo || !userId || !mongoose.Types.ObjectId.isValid(userId)) {
+            return { status: true, data: { data: [] } };
+        }
+
         let userData = await models.userModel.findOne({ _id: userId });
         if (!userData)
             return { status: false, message: 'User not found' };
@@ -34,6 +40,14 @@ exports.updateMyBalance = async (data) => {
 
 exports.getSeedData = async (userId) => {
     try {
+        const isGuest = !userId || !mongoose.Types.ObjectId.isValid(userId);
+        if (isGuest) {
+            return {
+                serverSeedData: { seed: generateSeed() },
+                clientSeedData: { seed: generateSeed() }
+            };
+        }
+
         let clientSeedData = await models.seedModel.findOne({ userId: userId, type: 'client' }).sort({ date: -1 });
         if (!clientSeedData) {
             clientSeedData = await new models.seedModel({ userId: mongoose.Types.ObjectId(userId), type: 'client', seed: generateSeed(), date: new Date() }).save();
@@ -46,7 +60,10 @@ exports.getSeedData = async (userId) => {
     }
     catch (err) {
         console.error({ title: 'MinesController => getSeedData', message: err.message });
-        return { status: false, message: err.message };
+        return {
+            serverSeedData: { seed: generateSeed() },
+            clientSeedData: { seed: generateSeed() }
+        };
     }
 }
 

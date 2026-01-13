@@ -30,7 +30,7 @@ ModelSchema.methods.updateToken = function (Token) {
 };
 
 ModelSchema.methods.comparePassword = function (password) {
-    return bcrypt.compareSync(password, JWT.decode(this.password).password);
+    return bcrypt.compareSync(password, this.password);
 };
 
 ModelSchema.pre('save', async function (next) {
@@ -38,7 +38,7 @@ ModelSchema.pre('save', async function (next) {
         if (!this.isModified('password'))
             return next();
 
-        this.password = JWT.sign({ password: bcrypt.hashSync(this.password, bcrypt.genSaltSync(10)) }, config.jwt.secret);
+        this.password = bcrypt.hashSync(this.password, bcrypt.genSaltSync(10));
         return next();
     }
     catch (err) {

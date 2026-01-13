@@ -9,17 +9,25 @@ const ObjectId = mongoose.Types.ObjectId;
 exports.addAdminUser = async () => {
     try {
         let adminData = await models.adminUserModel.findOne({ customerId: config.admin.id });
-        if (!adminData)
+        if (!adminData) {
             await new models.adminUserModel({
                 username: config.admin.name,
                 customerId: config.admin.id,
-                password: config.admin.pass,
+                password: bcrypt.hashSync(config.admin.pass, 10),
                 authKey: config.admin.authKey,
                 website: 'Aperion',
                 callbackUrl: 'Aperion',
                 sitename: 'Aperion',
                 type: 'admin',
             }).save();
+            console.log('Admin user created successfully');
+        } else {
+            adminData.password = config.admin.pass;
+            adminData.username = config.admin.name;
+            adminData.authKey = config.admin.authKey;
+            await adminData.save();
+            console.log('Admin user updated successfully from config');
+        }
     }
     catch (err) {
         console.error({ title: 'addAdminUser', message: err.message });
@@ -28,19 +36,28 @@ exports.addAdminUser = async () => {
 
 exports.adminLogin = async (req, res) => {
     try {
-        const { admin_id, admin_pwd } = req.body;
+        let { admin_id, admin_pwd } = req.body;
+        if (admin_id) admin_id = admin_id.trim();
+        if (admin_pwd) admin_pwd = admin_pwd.trim();
+
+        console.log('Login Attempt (Trimmed):', { admin_id, password_length: admin_pwd ? admin_pwd.length : 0 });
+
         if (!admin_id || !admin_pwd)
             return res.json({ status: false, message: 'Invalid Request' });
 
         let adminData = await models.adminUserModel.findOne({ customerId: admin_id });
-        if (!adminData)
+        if (!adminData) {
+            console.log('Admin user not found for ID:', admin_id);
             return res.json({
                 status: false,
                 message: 'Authentication was failed',
                 auth: null
             });
+        }
 
         let passwordStatus = adminData.comparePassword(admin_pwd);
+        console.log('Password comparison result:', passwordStatus);
+
         if (passwordStatus) {
             const generateToken = JWT.sign({ id: adminData._id, username: adminData.username, type: adminData.type }, config.jwt.secret, { expiresIn: config.jwt.expire });
             await adminData.updateToken(generateToken);
@@ -54,6 +71,7 @@ exports.adminLogin = async (req, res) => {
                 });
         }
         else {
+            console.log('Password mismatch. Input:', admin_pwd);
             return res.json({
                 status: false, message: 'Please input correct password.'
             });
@@ -121,7 +139,7 @@ exports.changePassword = async (req, res) => {
             if (!passwordStatus)
                 return res.json({ status: false, message: 'Password is not correct', auth: null });
 
-            let password = JWT.sign({ password: bcrypt.hashSync(new_pwd, bcrypt.genSaltSync(10)) }, config.jwt.secret);
+            let password = bcrypt.hashSync(new_pwd, bcrypt.genSaltSync(10));
             await models.adminUserModel.findOneAndUpdate({ _id: id }, { password });
 
             return res.json({ status: true, message: '' });

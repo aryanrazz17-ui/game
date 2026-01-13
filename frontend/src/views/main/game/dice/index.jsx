@@ -515,18 +515,18 @@ const Dice = () => {
     };
 
     const handlePlay = () => {
-        if (!authData.isAuth) {
-            addToast('Please login and try again', { appearance: 'warning', autoDismiss: true });
-            return;
-        }
         playEffectSound(playClickSound);
+
+        const isDemo = !authData.isAuth;
         const requestData = {
-            userId: authData.userData._id,
+            userId: authData.isAuth ? authData.userData._id : `guest_${Math.floor(Math.random() * 1000000)}`,
             betAmount: betAmount,
-            coinType: currency,
+            coinType: currency || { coinType: 'ZELO', type: '' },
             isOver: isOver,
-            difficulty: difficulty
+            difficulty: difficulty,
+            isDemo: isDemo
         };
+
         document.getElementsByClassName('DiceAnimContainer')[0].classList.remove('DiceAnimate');
         DiceSocketManager.getInstance().joinBet(requestData);
         diceBottomRef.current.style.backgroundColor = "#FDF6CB";

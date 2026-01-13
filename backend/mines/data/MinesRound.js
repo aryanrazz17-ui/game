@@ -22,6 +22,7 @@ module.exports = class MinesRound {
     nextPayout;
     cellPicked;
     isFinished;
+    isDemo;
 
     constructor(data) {
         this.initMinesData(data);
@@ -40,6 +41,7 @@ module.exports = class MinesRound {
         this.clientSeed = data.clientSeed;
         this.cellPicked = false;
         this.isFinished = false;
+        this.isDemo = data.isDemo;
         this.currentPayout = 1;
         this.nextPayout = this.generateNextMultiplier(this.minesCount, this.diamondCount + 1);
         this.resultBoard = this.generateResultBoard();

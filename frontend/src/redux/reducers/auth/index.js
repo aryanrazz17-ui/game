@@ -1,7 +1,7 @@
 const preState = {
     isAuth: false,
     userData: null,
-    balanceData: {}
+    balanceData: []
 };
 
 const authReducer = (state = preState, action) => {

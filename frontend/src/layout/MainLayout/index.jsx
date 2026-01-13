@@ -1,13 +1,13 @@
 import { Outlet } from "react-router-dom";
 import { Box, CssBaseline } from "@mui/material";
 import MainHeader from "./header";
-import MainMenu from "./menu";
+// import MainMenu from "./menu";
 import { makeStyles } from "@mui/styles";
 import { useDispatch, useSelector } from "react-redux";
 import clsx from "clsx";
 import MainFooter from "./footer";
 import Config from "config/index";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { getMyBalances } from "redux/actions/auth";
 import { useToasts } from "react-toast-notifications";
 import { getAuthData, getPrivacyData } from "redux/actions/auth";
@@ -39,11 +39,13 @@ const useStyles = makeStyles(() => ({
 const MainLayout = () => {
     const classes = useStyles();
     const dispatch = useDispatch();
-
-    const { addToast } = useToasts();
+    // const [authType, setAuthType] = useState(0);
 
     const authData = useSelector((state) => state.authentication);
     const menuOption = useSelector((state) => state.menuOption);
+    // const currency = (authData.isAuth && authData.userData) ? authData.userData.currency : { coinType: '', type: '' };
+
+    const { addToast } = useToasts();
 
     useEffect(() => {
         const checkAuthentication = async () => {
@@ -51,8 +53,8 @@ const MainLayout = () => {
                 const token = Config.Api.getToken();
                 if (token !== null) {
                     const response = await getAuthData({ token });
+                    console.log("Auth Check Response:", response);
                     if (response.status) {
-                        dispatch({ type: 'SET_AUTH' });
                         dispatch({ type: 'SET_USERDATA', data: response.data });
                         dispatch({ type: 'SET_BALANCEDATA', data: response.data.balance.data });
 
@@ -66,6 +68,10 @@ const MainLayout = () => {
                             maxBet: response.setting.maxBet
                         };
                         dispatch({ type: 'INIT_SETTING', data: settingData });
+                        dispatch({ type: 'SET_AUTH' });
+                    } else {
+                        console.warn("Invalid token, clearing...");
+                        Config.Api.clearToken();
                     }
                 }
             }

@@ -1,7 +1,11 @@
 const routerx = require('express-promise-router');
 const cryptoController = require('../controllers/cryptoController');
+const cashfreeController = require('../controllers/cashfreeController');
 
 const Router = routerx();
+
+Router.post('/cashfree-deposit', cashfreeController.createDepositOrder);
+Router.post('/cashfree-webhook', cashfreeController.verifyWebhook);
 
 Router.post('/webhook-handler', cryptoController.tatumWebhook);
 Router.post('/deposit-address', cryptoController.getDepositAddressFromAccount);

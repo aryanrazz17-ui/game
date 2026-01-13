@@ -89,3 +89,43 @@ exports.getExchangeRateFromBinanceApi = async (coinType) => {
         return { status: true, data: rate };
     }
 }
+
+/**
+ * Universal safe user lookup
+ * Handles: ObjectId validation, Guest/Demo users, Consistent error messages
+ */
+exports.findUserByIdSafely = async (UserModel, userId, isDemo = false) => {
+    try {
+        const mongoose = require('mongoose');
+
+        // Handle Demo/Guest Mode
+        if (isDemo || !userId || userId.toString().startsWith('guest_')) {
+            return {
+                status: true,
+                isDemo: true,
+                data: {
+                    _id: userId || 'guest_' + Date.now(),
+                    userNickName: 'Guest',
+                    balance: { data: [] }, // Mock balance
+                    currency: { coinType: 'BTC', type: 'native' }
+                }
+            };
+        }
+
+        // Validate ObjectId
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return { status: false, message: 'Invalid User ID format' };
+        }
+
+        // Database Query
+        const userData = await UserModel.findOne({ _id: userId });
+        if (!userData) {
+            return { status: false, message: 'User session not found' };
+        }
+
+        return { status: true, isDemo: false, data: userData };
+    } catch (err) {
+        console.error('findUserByIdSafely Error:', err.message);
+        return { status: false, message: 'Database query failed' };
+    }
+}

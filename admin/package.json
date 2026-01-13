@@ -43,7 +43,7 @@
     "yup": "^0.32.11"
   },
   "scripts": {
-    "start": "PORT=9000 react-scripts start",
+    "start": "cross-env PORT=9000 react-scripts start",
     "build": "set \"GENERATE_SOURCEMAP=false\" && react-scripts build"
   },
   "eslintConfig": {
@@ -67,6 +67,7 @@
   "devDependencies": {
     "@babel/core": "^7.19.0",
     "@babel/eslint-parser": "^7.18.9",
+    "cross-env": "^7.0.3",
     "eslint": "^8.23.1",
     "eslint-config-airbnb-typescript": "^17.0.0",
     "eslint-config-prettier": "^8.5.0",

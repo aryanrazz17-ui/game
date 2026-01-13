@@ -13,8 +13,16 @@ export default class CrashSocketManager {
         return CrashSocketManager._instance;
     }
 
-    connect() {
-        this.socket = io(Config.Root.crashSocketUrl, { transports: ['websocket'] });
+    connect(authData) {
+        const token = localStorage.getItem('token');
+        this.socket = io(Config.Root.crashSocketUrl, {
+            transports: ['websocket'],
+            auth: {
+                token: token,
+                userId: authData?.userData?._id,
+                isDemo: !authData?.isAuth
+            }
+        });
         let self = this;
 
         this.socket.on('connect', function () {

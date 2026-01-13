@@ -4,9 +4,7 @@ module.exports = {
         port: '6100'
     },
     dbInfo: {
-        host: '127.0.0.1',
-        port: '27017',
-        name: 'PlayZelo'
+        uri: process.env.MONGODB_URI
     },
     jwt: {
         secret: 'csgoclubggjwttokenfetyuhgbcase45w368w3q',
@@ -16,10 +14,10 @@ module.exports = {
         time: 1000 * 60 * 30
     },
     admin: {
-        id: 'admin',
-        name: 'admin',
-        pass: 'admin',
-        authKey: 'PlayZelo-Admin',
+        id: (process.env.ADMIN_USERNAME || 'admin').trim(),
+        name: (process.env.ADMIN_USERNAME || 'admin').trim(),
+        pass: (process.env.ADMIN_PASSWORD || 'admin').trim(),
+        authKey: (process.env.ADMIN_AUTH_KEY || 'PlayZelo-Admin').trim(),
         commission: 10.00
     },
     gameInfo: {

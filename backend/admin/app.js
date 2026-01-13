@@ -22,7 +22,7 @@ exports.createApp = (config) => {
         next();
     });
     const models = require('../models/index');
-    models.mongoose.connect('mongodb+srv://victoryfox1116:kzBPFHRoRfxdDGVO@cluster0.iknukbk.mongodb.net/PlayZelo?authSource=admin&replicaSet=atlas-10v8gb-shard-0&w=majority&readPreference=primary&appname=MongoDB%20Compass&retryWrites=true&ssl=true')
+    models.mongoose.connect(config.dbInfo.uri)
         .then(() => {
             console.log('Admin app connected to mongodb successfully');
             adminController.addAdminUser();

@@ -624,19 +624,29 @@ const Mines = () => {
     };
 
     const handleJoinBet = () => {
-        if (!authData.isAuth) {
-            addToast('Please login and try again.', { appearance: 'error', autoDismiss: true });
-            return;
-        }
         setBoardData(Array.from(Array(BoardRows), () => Array(BoardCols).fill(0)));
         setSelectData(Array.from(Array(BoardRows), () => Array(BoardCols).fill(false)));
         setDiamondCount(0);
         playEffectSound(playClickSound);
+
+        const isDemo = !authData.isAuth;
+        let userId = authData?.userData?._id;
+
+        if (isDemo) {
+            let guestId = sessionStorage.getItem('guestId');
+            if (!guestId) {
+                guestId = `guest_${Math.floor(Math.random() * 1000000)}`;
+                sessionStorage.setItem('guestId', guestId);
+            }
+            userId = guestId;
+        }
+
         const request = {
-            userId: authData?.userData?._id,
+            userId: userId,
             betAmount: betAmount,
-            coinType: currency,
-            minesCount: minesCount
+            coinType: currency || { coinType: 'BTC', type: 'native' },
+            minesCount: minesCount,
+            isDemo: isDemo
         };
         MinesSocketManager.getInstance().joinBet(request);
         setPlayLoading(true);
@@ -645,7 +655,8 @@ const Mines = () => {
     const handleFinishBet = () => {
         if (gamePlay) {
             playEffectSound(playClickSound);
-            MinesSocketManager.getInstance().finishBet({ userId: authData.userData._id });
+            const userId = authData.isAuth ? authData.userData._id : sessionStorage.getItem('guestId');
+            MinesSocketManager.getInstance().finishBet({ userId });
             setEndLoading(true);
         }
     };
@@ -654,7 +665,8 @@ const Mines = () => {
         if (gamePlay) {
             if (boardData[i][j] === 0) {
                 playEffectSound(playClickSound);
-                const request = { userId: authData?.userData?._id, i, j };
+                const userId = authData.isAuth ? authData.userData._id : sessionStorage.getItem('guestId');
+                const request = { userId, i, j };
                 MinesSocketManager.getInstance().pickCell(request);
             }
         }

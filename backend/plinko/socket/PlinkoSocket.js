@@ -1,15 +1,10 @@
+const BaseSocket = require('../../shared/utils/BaseSocket');
+const socketHelper = require('../../shared/utils/socketHelper');
 const dataManager = require('../manager/DataManager');
 
-module.exports = class PlinkoSocket {
-    socket = null;
-
+module.exports = class PlinkoSocket extends BaseSocket {
     constructor(server) {
-        this.socket = require('socket.io')({
-            cors: {
-                origin: '*',
-                method: ['GET', 'POST']
-            }
-        }).listen(server);
+        super(server, 'PlinkoSocket');
         this.bind();
     }
 
@@ -17,25 +12,17 @@ module.exports = class PlinkoSocket {
         this.socket.on('connection', (client) => {
             console.log(`*** Socket ${client.id} connected! ***`);
 
-            client.on('disconnect', () => {
-                console.log(`### Socket ${client.id} disconnected ###`);
-            });
-
             client.on('joinBet', (data) => {
-                dataManager.joinBet(data, client.id);
+                socketHelper.processSecureEvent(client, data, 'joinBet', 'betResult', (payload, socketId) => {
+                    dataManager.joinBet(payload, socketId);
+                });
             });
 
             client.on('getHistory', (data) => {
-                dataManager.getHistory(data, client.id);
+                socketHelper.processSecureEvent(client, data, 'getHistory', 'historyResult', (payload, socketId) => {
+                    dataManager.getHistory(payload, socketId);
+                });
             });
         });
-    }
-
-    broadCast(packetName, packetData = null) {
-        this.socket.emit(packetName, packetData);
-    }
-
-    sendTo(socket, packetName, packetData = null) {
-        this.socket.to(socket).emit(packetName, packetData);
     }
 }
